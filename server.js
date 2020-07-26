@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 mongoose.Promise = Promise
 
-var dbUrl = 'mongodb://user:user@ds155424.mlab.com:55424/learning-node'
+var dbUrl = 'mongodb+srv://admin:admin@cluster0-0tf2v.mongodb.net/test'
 
 var Message = mongoose.model('Message', {
     name: String,
@@ -24,36 +24,35 @@ app.get('/messages', (req, res) => {
     })
 })
 
-app.post('/messages', (req, res) => {
+app.post('/messages', async (req, res) => {
     var message = new Message(req.body)
 
-    message.save()
-    .then(() => {
-        console.log('saved')
-        return Message.findOne({message: 'badword'})
-    })
-    .then( censored => {
-        if(censored) {
-            console.log('censored words found', censored)
-            return Message.remove({_id: censored.id})
-        }
+    var saveMessage = await message.save()
+    
+    console.log('saved')
+    
+    var censored = await Message.findOne({message: 'badword'})
+
+    if(censored) {
+        await Message.deleteOne({_id: censored.id})
+    } else {
         io.emit('message', req.body)
-        res.sendStatus(200)
-    })
-    .catch((err) => {
-        res.sendStatus(500)
-        return console.error(err)
-    })
+    }
+
+    res.sendStatus(200)
+
+    // .catch((err) => {
+    //     res.sendStatus(500)
+    //     return console.error(err)
+    // })
 
 })
-
-
 
 io.on('connection', (socket) => {
     console.log('a user connected')
 })
 
-mongoose.connect(dbUrl, { useMongoClient: true }, (err) => {
+mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true }, (err) => {
     console.log('mongo db connection', err)
 })
 
