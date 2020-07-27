@@ -27,7 +27,8 @@ app.get('/messages', (req, res) => {
 app.post('/messages', async (req, res) => {
 
     try {
-        var message = new Message(req.body)
+        var message = new 
+        Message(req.body)
 
         var saveMessage = await message.save()
         
@@ -45,6 +46,8 @@ app.post('/messages', async (req, res) => {
     } catch (error) {
         res.sendStatus(500)
         return console.error(error)        
+    } finally {
+        console.log('Message post called');
     }
 })
 
