@@ -47,7 +47,7 @@ app.post('/messages', async (req, res) => {
         res.sendStatus(500)
         return console.error(error)        
     } finally {
-        console.log('Message post called');
+        console.log('Message called in finally block');
     }
 })
 
